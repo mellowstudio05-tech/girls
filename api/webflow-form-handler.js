@@ -9,7 +9,37 @@
  * 4. Webflow Form Webhook URL auf diese Route setzen: https://your-domain.vercel.app/api/webflow-form-handler
  */
 
-import { createCMSItem } from '../utils/webflow-api.js';
+// Webflow API Helper Function (inline, um Import-Probleme zu vermeiden)
+async function createCMSItem(collectionId, fieldData, isDraft = false) {
+  const { WEBFLOW_API_TOKEN } = process.env;
+
+  if (!WEBFLOW_API_TOKEN) {
+    throw new Error('WEBFLOW_API_TOKEN is not set');
+  }
+
+  const response = await fetch(
+    `https://api.webflow.com/v2/collections/${collectionId}/items`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${WEBFLOW_API_TOKEN}`,
+        'Content-Type': 'application/json',
+        'accept-version': '1.0.0'
+      },
+      body: JSON.stringify({
+        fieldData,
+        isDraft
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Webflow API Error: ${response.status} - ${errorText}`);
+  }
+
+  return await response.json();
+}
 
 export default async function handler(req, res) {
   // CORS-Header für Webflow
