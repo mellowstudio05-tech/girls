@@ -1,8 +1,2 @@
-{
-  "functions": {
-    "api/webflow-form-handler.js": {
-      "runtime": "nodejs22.x"
-    }
-  }
-}
+{}
 
