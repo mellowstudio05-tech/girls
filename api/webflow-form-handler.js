@@ -22,9 +22,27 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  // GET-Request für Tests (optional - kann später entfernt werden)
+  if (req.method === 'GET') {
+    const { 
+      WEBFLOW_API_TOKEN, 
+      WEBFLOW_SITE_ID, 
+      WEBFLOW_COLLECTION_ID 
+    } = process.env;
+    
+    return res.status(200).json({ 
+      message: 'Webflow Form Handler is running',
+      hasToken: !!WEBFLOW_API_TOKEN,
+      hasSiteId: !!WEBFLOW_SITE_ID,
+      hasCollectionId: !!WEBFLOW_COLLECTION_ID,
+      endpoint: '/api/webflow-form-handler',
+      method: 'POST'
+    });
+  }
+
   // Nur POST-Requests erlauben
   if (req.method !== 'POST') {
-    return res.status(200).json({ error: 'Method not allowed' });
+    return res.status(200).json({ error: 'Method not allowed. Use POST.' });
   }
 
   try {
