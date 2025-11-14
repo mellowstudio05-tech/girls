@@ -1,0 +1,24 @@
+{
+  "name": "girlsunited-webflow-cms-integration",
+  "version": "1.0.0",
+  "description": "Integration für Webflow-Formulare zur automatischen CMS-Eintrag-Erstellung",
+  "main": "api/webflow-form-handler.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy",
+    "get-ids": "node scripts/get-webflow-ids.js"
+  },
+  "type": "module",
+  "keywords": [
+    "webflow",
+    "cms",
+    "vercel",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.x"
+  }
+}
+
