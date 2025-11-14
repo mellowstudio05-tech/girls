@@ -35,16 +35,46 @@ export default async function handler(req, res) {
     // Formular-Daten aus dem Request extrahieren
     const formData = req.body;
     
-    // Webflow Form Submissions haben ein spezifisches Format
-    // Anpassen je nach deinem Formular-Feldnamen
+    // Debug: Logge die empfangenen Daten (kann später entfernt werden)
+    console.log('Received form data:', JSON.stringify(formData, null, 2));
+    
+    // Webflow Form Submissions - Feldnamen müssen exakt mit CMS-Collection übereinstimmen
     const cmsItemData = {
-      name: formData.name || formData['name'] || '',
-      email: formData.email || formData['email'] || '',
-      message: formData.message || formData['message'] || '',
-      // Füge hier weitere Felder hinzu, die zu deinem CMS-Collection passen
-      // z.B.: phone: formData.phone || '',
-      //       date: new Date().toISOString(),
+      // Text-Felder (Plain)
+      'Name Organisation': formData['Name Organisation'] || formData.name || '',
+      'Anschrift': formData.Anschrift || formData.anschrift || '',
+      'Vorname': formData.Vorname || formData.vorname || '',
+      'Website': formData.Website || formData.website || '',
+      'Instagram': formData.Instagram || formData.instagram || '',
+      'Beschreibung': formData.Beschreibung || formData.beschreibung || '',
+      'Uhrzeit': formData.Uhrzeit || formData.uhrzeit || '',
+      'Altersgruppe': formData.Altersgruppe || formData.altersgruppe || '',
+      'LGBTIQ-freundlich': formData['LGBTIQ-freundlich'] || formData.lgbtiq || '',
+      
+      // Select-Feld
+      'Wochentag': formData.Wochentag || formData.wochentag || '',
+      
+      // Checkbox-Felder (Boolean)
+      'Täglich': formData.Täglich === true || formData.Täglich === 'true' || formData.täglich === true || formData.täglich === 'true' || false,
+      'Wöchentlich': formData.Wöchentlich === true || formData.Wöchentlich === 'true' || formData.wöchentlich === true || formData.wöchentlich === 'true' || false,
+      'Einmalig': formData.Einmalig === true || formData.Einmalig === 'true' || formData.einmalig === true || formData.einmalig === 'true' || false,
+      'Aufzug': formData.Aufzug === true || formData.Aufzug === 'true' || formData.aufzug === true || formData.aufzug === 'true' || false,
+      'Treppenstufen': formData.Treppenstufen === true || formData.Treppenstufen === 'true' || formData.treppenstufen === true || formData.treppenstufen === 'true' || false,
+      'Barrierefreie Toilette': formData['Barrierefreie Toilette'] === true || formData['Barrierefreie Toilette'] === 'true' || formData['barrierefreie-toilette'] === true || formData['barrierefreie-toilette'] === 'true' || false,
+      'Barrierefreier Zugang': formData['Barrierefreier Zugang'] === true || formData['Barrierefreier Zugang'] === 'true' || formData['barrierefreier-zugang'] === true || formData['barrierefreier-zugang'] === 'true' || false,
+      'Alles Barrierefrei': formData['Alles Barrierefrei'] === true || formData['Alles Barrierefrei'] === 'true' || formData['alles-barrierefrei'] === true || formData['alles-barrierefrei'] === 'true' || false,
+      'Nicht Barrierefrei': formData['Nicht Barrierefrei'] === true || formData['Nicht Barrierefrei'] === 'true' || formData['nicht-barrierefrei'] === true || formData['nicht-barrierefrei'] === 'true' || false,
+      'Datenschutz': formData.Datenschutz === true || formData.Datenschutz === 'true' || formData.datenschutz === true || formData.datenschutz === 'true' || false,
     };
+    
+    // Entferne leere Felder (optional, kann helfen bei Fehlern)
+    Object.keys(cmsItemData).forEach(key => {
+      if (cmsItemData[key] === '' || cmsItemData[key] === null || cmsItemData[key] === undefined) {
+        delete cmsItemData[key];
+      }
+    });
+    
+    console.log('Processed CMS data:', JSON.stringify(cmsItemData, null, 2));
 
     // Webflow CMS API aufrufen, um Eintrag zu erstellen
     const createdItem = await createCMSItem(
