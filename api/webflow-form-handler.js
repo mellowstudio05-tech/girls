@@ -17,6 +17,12 @@ async function createCMSItem(collectionId, fieldData, isDraft = false) {
     throw new Error('WEBFLOW_API_TOKEN is not set');
   }
 
+  // Webflow API v2 erwartet ein 'name' Feld im fieldData
+  // Falls kein 'name' vorhanden ist, erstelle einen Standard-Namen
+  if (!fieldData.name && !fieldData.Name) {
+    fieldData.name = fieldData['Name Organisation'] || fieldData['Text'] || 'Neuer Eintrag';
+  }
+
   const response = await fetch(
     `https://api.webflow.com/v2/collections/${collectionId}/items`,
     {
@@ -106,6 +112,9 @@ export default async function handler(req, res) {
     // Alles Barrierefrei, Nicht Barrierefrei (alle Plain text)
     
     const cmsItemData = {
+      // Name-Feld (erforderlich für Webflow API v2)
+      'name': formData['Name Organisation'] || formData.name || formData.Name || formData.Beschreibung || 'Neuer Eintrag',
+      
       // Rich text Feld (kann HTML enthalten)
       'Text': formData.Beschreibung || formData['Beschreibung'] || formData.beschreibung || formData.Text || formData.text || '',
       
