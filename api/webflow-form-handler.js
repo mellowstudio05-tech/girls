@@ -12,9 +12,19 @@
 import { createCMSItem } from '../utils/webflow-api.js';
 
 export default async function handler(req, res) {
+  // CORS-Header für Webflow
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // OPTIONS-Request für CORS Preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   // Nur POST-Requests erlauben
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(200).json({ error: 'Method not allowed' });
   }
 
   try {
@@ -27,7 +37,9 @@ export default async function handler(req, res) {
     // Validierung der Environment Variables
     if (!WEBFLOW_API_TOKEN || !WEBFLOW_SITE_ID || !WEBFLOW_COLLECTION_ID) {
       console.error('Missing required environment variables');
-      return res.status(500).json({ 
+      // 200 zurückgeben, damit Webflow keine Fehlerseite zeigt
+      return res.status(200).json({ 
+        success: false,
         error: 'Server configuration error. Please check environment variables.' 
       });
     }
@@ -105,7 +117,12 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Error processing form submission:', error);
-    return res.status(500).json({ 
+    console.error('Error stack:', error.stack);
+    
+    // Wichtig: Immer 200 zurückgeben, damit Webflow keine Fehlerseite zeigt
+    // Der Fehler wird trotzdem in den Logs gespeichert
+    return res.status(200).json({ 
+      success: false,
       error: 'Internal server error',
       message: error.message 
     });
