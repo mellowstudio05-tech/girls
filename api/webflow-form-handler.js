@@ -39,32 +39,45 @@ export default async function handler(req, res) {
     console.log('Received form data:', JSON.stringify(formData, null, 2));
     
     // Webflow Form Submissions - Feldnamen müssen exakt mit CMS-Collection übereinstimmen
+    // Basierend auf den tatsächlichen CMS-Feldern:
+    // Bild (Image), Text (Rich text), Uhrzeit (Plain text), Tag (Option), 
+    // Wiederholung (Option), Barierefreiheit (Plain text), Ort (Reference),
+    // Aufzug, Treppenstufen, Barrierefreie Toilette, Barrierefreier Zugang,
+    // Alles Barrierefrei, Nicht Barrierefrei (alle Plain text)
+    
     const cmsItemData = {
-      // Text-Felder (Plain)
-      'Name Organisation': formData['Name Organisation'] || formData.name || '',
-      'Anschrift': formData.Anschrift || formData.anschrift || '',
-      'Vorname': formData.Vorname || formData.vorname || '',
-      'Website': formData.Website || formData.website || '',
-      'Instagram': formData.Instagram || formData.instagram || '',
-      'Beschreibung': formData.Beschreibung || formData.beschreibung || '',
+      // Rich text Feld (kann HTML enthalten)
+      'Text': formData.Beschreibung || formData['Beschreibung'] || formData.beschreibung || formData.Text || formData.text || '',
+      
+      // Plain text Felder
       'Uhrzeit': formData.Uhrzeit || formData.uhrzeit || '',
-      'Altersgruppe': formData.Altersgruppe || formData.altersgruppe || '',
-      'LGBTIQ-freundlich': formData['LGBTIQ-freundlich'] || formData.lgbtiq || '',
+      'Barierefreiheit': formData['Barierefreiheit'] || formData.Barierefreiheit || formData.barierefreiheit || 
+                        formData['Barrierefreiheit'] || formData.Barrierefreiheit || '',
       
-      // Select-Feld
-      'Wochentag': formData.Wochentag || formData.wochentag || '',
+      // Checkbox-Felder als Plain Text: Wenn angekreuzt, dann Text-Wert setzen
+      'Täglich': (formData.Täglich === true || formData.Täglich === 'true' || formData.täglich === true || formData.täglich === 'true') ? 'Täglich' : '',
+      'Wöchentlich': (formData.Wöchentlich === true || formData.Wöchentlich === 'true' || formData.wöchentlich === true || formData.wöchentlich === 'true') ? 'Wöchentlich' : '',
+      'Einmalig': (formData.Einmalig === true || formData.Einmalig === 'true' || formData.einmalig === true || formData.einmalig === 'true') ? 'Einmalig' : '',
+      'Aufzug': (formData.Aufzug === true || formData.Aufzug === 'true' || formData.aufzug === true || formData.aufzug === 'true') ? 'Aufzug' : '',
+      'Treppenstufen': (formData.Treppenstufen === true || formData.Treppenstufen === 'true' || formData.treppenstufen === true || formData.treppenstufen === 'true') ? 'Treppenstufen' : '',
+      'Barrierefreie Toilette': (formData['Barrierefreie Toilette'] === true || formData['Barrierefreie Toilette'] === 'true' || 
+                                 formData['barrierefreie-toilette'] === true || formData['barrierefreie-toilette'] === 'true') ? 'Barrierefreie Toilette' : '',
+      'Barrierefreier Zugang': (formData['Barrierefreier Zugang'] === true || formData['Barrierefreier Zugang'] === 'true' || 
+                                formData['barrierefreier-zugang'] === true || formData['barrierefreier-zugang'] === 'true') ? 'Barrierefreier Zugang' : '',
+      'Alles Barrierefrei': (formData['Alles Barrierefrei'] === true || formData['Alles Barrierefrei'] === 'true' || 
+                            formData['alles-barrierefrei'] === true || formData['alles-barrierefrei'] === 'true') ? 'Alles Barrierefrei' : '',
+      'Nicht Barrierefrei': (formData['Nicht Barrierefrei'] === true || formData['Nicht Barrierefrei'] === 'true' || 
+                            formData['nicht-barrierefrei'] === true || formData['nicht-barrierefrei'] === 'true') ? 'Nicht Barrierefrei' : '',
       
-      // Checkbox-Felder (Boolean)
-      'Täglich': formData.Täglich === true || formData.Täglich === 'true' || formData.täglich === true || formData.täglich === 'true' || false,
-      'Wöchentlich': formData.Wöchentlich === true || formData.Wöchentlich === 'true' || formData.wöchentlich === true || formData.wöchentlich === 'true' || false,
-      'Einmalig': formData.Einmalig === true || formData.Einmalig === 'true' || formData.einmalig === true || formData.einmalig === 'true' || false,
-      'Aufzug': formData.Aufzug === true || formData.Aufzug === 'true' || formData.aufzug === true || formData.aufzug === 'true' || false,
-      'Treppenstufen': formData.Treppenstufen === true || formData.Treppenstufen === 'true' || formData.treppenstufen === true || formData.treppenstufen === 'true' || false,
-      'Barrierefreie Toilette': formData['Barrierefreie Toilette'] === true || formData['Barrierefreie Toilette'] === 'true' || formData['barrierefreie-toilette'] === true || formData['barrierefreie-toilette'] === 'true' || false,
-      'Barrierefreier Zugang': formData['Barrierefreier Zugang'] === true || formData['Barrierefreier Zugang'] === 'true' || formData['barrierefreier-zugang'] === true || formData['barrierefreier-zugang'] === 'true' || false,
-      'Alles Barrierefrei': formData['Alles Barrierefrei'] === true || formData['Alles Barrierefrei'] === 'true' || formData['alles-barrierefrei'] === true || formData['alles-barrierefrei'] === 'true' || false,
-      'Nicht Barrierefrei': formData['Nicht Barrierefrei'] === true || formData['Nicht Barrierefrei'] === 'true' || formData['nicht-barrierefrei'] === true || formData['nicht-barrierefrei'] === 'true' || false,
-      'Datenschutz': formData.Datenschutz === true || formData.Datenschutz === 'true' || formData.datenschutz === true || formData.datenschutz === 'true' || false,
+      // Option-Felder (Select/Dropdown)
+      'Tag': formData.Tag || formData.tag || formData.Wochentag || formData.wochentag || '',
+      'Wiederholung': formData.Wiederholung || formData.wiederholung || '',
+      
+      // Reference-Feld (Ort) - muss die ID des referenzierten Items sein
+      // 'Ort': formData.Ort || formData.ort || '', // Falls du eine Ort-ID hast
+      
+      // Bild-Feld wird normalerweise nicht direkt vom Formular gesetzt
+      // 'Bild': '', // Wird später manuell oder über andere Methode gesetzt
     };
     
     // Entferne leere Felder (optional, kann helfen bei Fehlern)
